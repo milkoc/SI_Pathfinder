@@ -49,7 +49,9 @@ std::list<MapVertex> Pathfinder::findPath(MapNodeGraph& graph, MapVertex& startV
 		}
 	}
 
-	return std::list<MapVertex>(); //FAIL
+	std::list<MapVertex> path;
+	path.push_back(startVertex);
+	return path; //FAIL
 }
 
 std::list<MapVertex> Pathfinder::constructPath(std::map<MapVertex, MapVertex> parentMap, MapVertex& currentVertex) {
