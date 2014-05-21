@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include "map.h"
+#include "SeekerBot.h"
 
 class App
 {

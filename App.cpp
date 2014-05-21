@@ -72,6 +72,9 @@ void App::close()
 	SDL_FreeSurface(bgIMG);
 	bgIMG = NULL;
 
+	SDL_FreeSurface(tileIMG);
+	tileIMG = NULL;
+
 	//Destroy window
 	SDL_DestroyWindow(mainWin.gWindow);
 	mainWin.gWindow = NULL;
@@ -93,7 +96,6 @@ void App::handleEvents()
 		//User presses a key
 		else if (e.type == SDL_KEYDOWN)
 		{
-			//Select surfaces based on key press
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_UP:

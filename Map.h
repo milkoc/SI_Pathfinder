@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, MapNode> MapNodeGraph;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, MapNode, double> MapNodeGraph;
 typedef boost::graph_traits<MapNodeGraph>::vertex_descriptor MapVertex;
 typedef boost::graph_traits<MapNodeGraph>::edge_descriptor MapEdge;
 
@@ -15,6 +15,7 @@ class Map
 public:
 	Map();
 	Map(int width, int height);
+	MapVertex mv;
 
 	int getWidth();
 	int getHeight();
