@@ -85,12 +85,13 @@ std::list<MapVertex> Pathfinder::updatePath(MapNodeGraph& graph, std::list<MapVe
 		}
 		if (it1 != it2 && it2 != path.end()) {	//reconstruct subpath if vertices vere skipped
 			std::list<MapVertex> subpath = findPath(graph, *it1, *it2, hueristicEstimate);
-			newPath.splice(newPath.end(), subpath);			
+			newPath.splice(newPath.end(), subpath);		
+			it1 = it2;
 		}
 		else {
 			newPath.push_back(*it1);
-		}
-		it1 = it2;		
+			++it1;
+		}			
 	}
 	return newPath;
 }
