@@ -4,6 +4,8 @@ Pathfinder::Pathfinder()
 {
 }
 
+
+
 std::list<MapVertex> Pathfinder::findPath(MapNodeGraph& graph, MapVertex& startVertex, MapVertex& goalVertex, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
 	typedef std::set<MapVertex> vertexSet;
 	vertexSet openSet, closedSet;
@@ -66,4 +68,29 @@ std::list<MapVertex> Pathfinder::constructPath(std::map<MapVertex, MapVertex> pa
 double Pathfinder::manhattanDistanceHeuristic(MapNodeGraph& graph, MapVertex& vertexA, MapVertex& vertexB) {
 	//return sqrt(pow(graph[vertexA].getXY().first - graph[vertexB].getXY().first, 2) + pow(graph[vertexA].getXY().second - graph[vertexB].getXY().second, 2));
 	return abs(graph[vertexA].getXY().first - graph[vertexB].getXY().first) + abs(graph[vertexA].getXY().second - graph[vertexB].getXY().second);
+}
+
+std::list<MapVertex> Pathfinder::updatePath(MapNodeGraph& graph, std::list<MapVertex> path, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
+	std::list<MapVertex> newPath;
+	std::list<MapVertex>::iterator it1;
+	it1 = path.begin();
+
+	while (it1 != path.end()) {
+		std::list<MapVertex>::iterator it2 = it1, it3 = it1;
+		++it3;
+
+		while (it3 != path.end() && !boost::edge(*it2, *it3, graph).second) { //seek earliest vertex still connected to its successor
+			++it2;
+			++it3;
+		}
+		if (it1 != it2 && it2 != path.end()) {	//reconstruct subpath if vertices vere skipped
+			std::list<MapVertex> subpath = findPath(graph, *it1, *it2, hueristicEstimate);
+			newPath.splice(newPath.end(), subpath);			
+		}
+		else {
+			newPath.push_back(*it1);
+		}
+		it1 = it2;		
+	}
+	return newPath;
 }
