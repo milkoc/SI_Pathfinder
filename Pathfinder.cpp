@@ -4,8 +4,6 @@ Pathfinder::Pathfinder()
 {
 }
 
-
-
 std::list<MapVertex> Pathfinder::findPath(MapNodeGraph& graph, MapVertex& startVertex, MapVertex& goalVertex, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
 	typedef std::set<MapVertex> vertexSet;
 	vertexSet openSet, closedSet;
@@ -95,3 +93,32 @@ std::list<MapVertex> Pathfinder::updatePath(MapNodeGraph& graph, std::list<MapVe
 	}
 	return newPath;
 }
+
+std::list<MapVertex> Pathfinder::updatePathGoal(MapNodeGraph& graph, std::list<MapVertex> path, MapVertex& newGoal, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
+	double currPathCost = 0;
+	std::map<double, std::list<MapVertex>::iterator> estimatedCostMap;	//sort (path cost -> last vertex) pairs
+	std::list<MapVertex>::iterator it1;
+	it1 = path.begin();
+
+	while (it1 != path.end()) {		//estimate lenghts of possible new paths
+		double estimatedCost = currPathCost + hueristicEstimate(graph, *it1, newGoal);
+		estimatedCostMap[estimatedCost] = it1;
+
+		std::list<MapVertex>::iterator it2 = it1;
+		++it2;
+		if (it2 != path.end()){
+			currPathCost += graph[boost::edge(*it1, *it2, graph).first];	//assume that path is still passable
+		}
+		++it1;
+	}
+
+	std::list<MapVertex>::iterator lastKeptNodeit = estimatedCostMap.begin()->second;	//shortest estimated new path = path to this node + subpath to the new goal
+	std::list<MapVertex> newPath;
+	newPath.splice(newPath.begin(), path, path.begin(), lastKeptNodeit);	//move kept part of the old path into the new path
+	std::list<MapVertex> newGoalSubpath = findPath(graph, *lastKeptNodeit, newGoal, hueristicEstimate);
+	newGoalSubpath.pop_front();	//Delete the first element, it's lastKeptNode
+	newPath.splice(newPath.end(), newGoalSubpath);	//add new goal subpath to the new path
+
+	return newPath;
+}
+
