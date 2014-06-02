@@ -217,31 +217,31 @@ std::list<MapVertex> Map::findPathHierarchical(MapVertex v1, MapVertex v2) {	//f
 	MapVertex newVertex = addAbstractGraphVertex(s1, co1);
 	for (std::set<MapVertex>::iterator it1 = s1.vertexSet.begin(); it1 != s1.vertexSet.end(); ++it1) {
 		if (*it1 != newVertex) {
-			coords co2 = abstractL2MapNodeGraph[*it1].getXY();
+			coords co2 = abstractGraphCp[*it1].getXY();
 			MapVertex fullGV2 = XYToGraphNodeMap.find(co1)->second; //vertex 2 from the full graph
 			std::list<MapVertex> path = findPathInsideSector(mapNodeGraph, s1, v1, fullGV2, &Map::manhattanDistanceHeuristic);
 			if (path.size() > 0) {	//if path exists
 				MapEdge e; bool b;
-				boost::tie(e, b) = boost::add_edge(*it1, *it1, abstractL2MapNodeGraph);	//add edge
-				abstractL2MapNodeGraph[e] = pathCost(mapNodeGraph, path);
+				boost::tie(e, b) = boost::add_edge(*it1, *it1, abstractGraphCp);	//add edge
+				abstractGraphCp[e] = pathCost(mapNodeGraph, path);
 			}
 		}
 	}
 	MapVertex newVertex2 = addAbstractGraphVertex(s2, co2);
 	for (std::set<MapVertex>::iterator it1 = s2.vertexSet.begin(); it1 != s2.vertexSet.end(); ++it1) {
 		if (*it1 != newVertex2) {
-			coords co2 = abstractL2MapNodeGraph[*it1].getXY();
+			coords co2 = abstractGraphCp[*it1].getXY();
 			MapVertex fullGV2 = XYToGraphNodeMap.find(co1)->second; //vertex 2 from the full graph
 			std::list<MapVertex> path = findPathInsideSector(mapNodeGraph, s2, v2, fullGV2, &Map::manhattanDistanceHeuristic);
 			if (path.size() > 0) {	//if path exists
 				MapEdge e; bool b;
-				boost::tie(e, b) = boost::add_edge(*it1, *it1, abstractL2MapNodeGraph);	//add edge
-				abstractL2MapNodeGraph[e] = pathCost(mapNodeGraph, path);
+				boost::tie(e, b) = boost::add_edge(*it1, *it1, abstractGraphCp);	//add edge
+				abstractGraphCp[e] = pathCost(mapNodeGraph, path);
 			}
 		}
 	}
 
-	return findPath(abstractL2MapNodeGraph, newVertex, newVertex2, Map::manhattanDistanceHeuristic);
+	return findPath(abstractGraphCp, newVertex, newVertex2, Map::manhattanDistanceHeuristic);
 }
 
 std::list<MapVertex> Map::findPath(MapNodeGraph& graph, MapVertex& startVertex, MapVertex& goalVertex, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
