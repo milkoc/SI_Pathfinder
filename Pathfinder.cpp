@@ -39,7 +39,7 @@ std::list<MapVertex> Pathfinder::findPath(MapNodeGraph& graph, MapVertex& startV
 				MapEdge edge = boost::edge(currentVertex, neighbourVertex, graph).first;
 				double tempCost = baseCostMap[currentVertex] + graph[edge];
 
-				if (openSet.find(neighbourVertex) == closedSet.end() || tempCost < baseCostMap[neighbourVertex]) {
+				if (openSet.find(neighbourVertex) == openSet.end() || tempCost < baseCostMap[neighbourVertex]) {
 					parentMap[neighbourVertex] = currentVertex;
 					baseCostMap[neighbourVertex] = tempCost;
 					adjustedCostMap[neighbourVertex] = tempCost + hueristicEstimate(graph, neighbourVertex, goalVertex);
@@ -50,7 +50,6 @@ std::list<MapVertex> Pathfinder::findPath(MapNodeGraph& graph, MapVertex& startV
 	}
 
 	std::list<MapVertex> path;
-	path.push_back(startVertex);
 	return path; //FAIL
 }
 
@@ -97,8 +96,7 @@ std::list<MapVertex> Pathfinder::updatePath(MapNodeGraph& graph, std::list<MapVe
 std::list<MapVertex> Pathfinder::updatePathGoal(MapNodeGraph& graph, std::list<MapVertex> path, MapVertex& newGoal, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
 	double currPathCost = 0;
 	std::map<double, std::list<MapVertex>::iterator> estimatedCostMap;	//sort (path cost -> last vertex) pairs
-	std::list<MapVertex>::iterator it1;
-	it1 = path.begin();
+	std::list<MapVertex>::iterator it1 = path.begin();
 
 	while (it1 != path.end()) {		//estimate lenghts of possible new paths
 		double estimatedCost = currPathCost + hueristicEstimate(graph, *it1, newGoal);
@@ -120,5 +118,21 @@ std::list<MapVertex> Pathfinder::updatePathGoal(MapNodeGraph& graph, std::list<M
 	newPath.splice(newPath.end(), newGoalSubpath);	//add new goal subpath to the new path
 
 	return newPath;
+}
+
+double Pathfinder::pathCost(MapNodeGraph& graph, std::list<MapVertex> path) {
+	double currPathCost = 0;
+	std::list<MapVertex>::iterator it1 = path.begin();
+
+	while (it1 != path.end()) {	
+		std::list<MapVertex>::iterator it2 = it1;
+		++it2;
+		if (it2 != path.end()){
+			currPathCost += graph[boost::edge(*it1, *it2, graph).first];	//assume that path is still passable
+		}
+		++it1;
+	}
+
+	return currPathCost;
 }
 

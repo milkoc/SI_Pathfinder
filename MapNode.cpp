@@ -10,6 +10,6 @@ MapNode::MapNode(bool blocked, int cost, int x, int y) : blocked(blocked), cost(
 {
 }
 
-std::pair<int, int> MapNode::getXY() {
-	return std::pair<int, int>(x, y);
+coords MapNode::getXY() {
+	return coords(x, y);
 }

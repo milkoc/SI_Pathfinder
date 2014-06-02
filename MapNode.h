@@ -1,6 +1,8 @@
 #pragma once
 #include <list> 
 
+typedef std::pair<int, int> coords;
+
 class MapNode
 {
 public:
@@ -9,7 +11,7 @@ public:
 	bool isBlocked();
 	bool getCost();
 	void display();
-	std::pair<int, int> getXY();
+	coords getXY();
 private:
 	bool blocked;
 	int cost;
