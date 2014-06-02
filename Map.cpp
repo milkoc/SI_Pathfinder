@@ -103,7 +103,7 @@ void Map::buildEntrances(Sector& s1, Sector& s2, Direction s2Direction) {	//only
 
 		break;
 	case RIGHT:
-
+		//TODO
 		break;
 	default:
 		return;
