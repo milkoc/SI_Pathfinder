@@ -263,9 +263,6 @@ void App::mouseClick(int x, int y)
 		{
 			if (tableMap[x][y].color != 0x000000)
 			{
-				coords a = map.mapNodeGraph[map.XYToGraphNodeMap[coords(10, 10)]].getXY();
-				MapVertex av = map.XYToGraphNodeMap[coords(10, 10)];
-
 				tableMap[x][y].color = 0x000000;
 				//tableMap[(x/cellSize)+1][(y/cellSize)+1].color = 0x000000;
 				//tableMap[(x/cellSize)+1][(y/cellSize)].color = 0x000000;
@@ -275,10 +272,6 @@ void App::mouseClick(int x, int y)
 				remove_vertex(map.XYToGraphNodeMap[coords(x, y)], map.mapNodeGraph);
 				map.XYToGraphNodeMap.erase(coords(x, y));
 				map.refreshMapping(map.XYToGraphNodeMap, map.mapNodeGraph);
-
-				coords b = map.mapNodeGraph[av].getXY();
-				MapVertex bv = map.XYToGraphNodeMap[coords(10, 10)];
-				int x = 1;
 			}
 		}
 
