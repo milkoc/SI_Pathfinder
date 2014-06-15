@@ -462,6 +462,8 @@ std::list<MapVertex> Map::smoothPath(std::list<MapVertex> path, MapNodeGraph& ab
 
 		it1 = it2;
 	}
+
+	return newPath;
 }
 
 std::list<MapVertex> Map::updatePath(MapNodeGraph& graph, std::list<MapVertex> path, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
