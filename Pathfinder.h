@@ -17,4 +17,3 @@ public:
 private:
 	std::list<MapVertex> constructPath(std::map<MapVertex, MapVertex> parentMap, MapVertex& currentVertex);
 };
-

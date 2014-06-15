@@ -8,5 +8,8 @@ public:
 	~SeekerBot();
 private:
 	Pathfinder pathfindingComponent;
+	std::list<MapVertex> Path;
+
+	friend class App;
 };
 

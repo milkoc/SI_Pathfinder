@@ -11,7 +11,43 @@ Map::Map(int width, int height) : width(width), height(height)
 
 void Map::makeEmptyMap()
 {
+	MapNode *node;
+	MapVertex v1, v2;
+	int x, y;
 
+	// tworzenie linii poziomych mapy i ³¹czenie wierzcho³ków w poziomie 
+	for (y = 0; y < 100; y++)
+	{
+		x = 0;
+		node = new MapNode(false, 1, x, y);
+		nodeTab[x][y] = node;
+		v1 = add_vertex(*node, mapNodeGraph);
+		XYToGraphNodeMap[coords(x, y)] = v1;
+
+		for (x = 1; x < 100; x++)
+		{
+			node = new MapNode(false, 1, x, y);
+			nodeTab[x][y] = node;
+			v2 = add_vertex(*node, mapNodeGraph);
+			XYToGraphNodeMap[coords(x, y)] = v2;
+
+			add_edge(v1, v2, 1, mapNodeGraph);
+			add_edge(v2, v1, 1, mapNodeGraph);
+			v1 = v2;
+
+		}
+	}
+
+	// ³¹czenie wierzcho³ków w pionie
+	for (y = 0; y < 99; y++)
+	{
+		for (x = 0; x < 100; x++)
+		{
+			add_edge(XYToGraphNodeMap[coords(x, y)], XYToGraphNodeMap[coords(x, y + 1)], 1, mapNodeGraph);
+			add_edge(XYToGraphNodeMap[coords(x, y + 1)], XYToGraphNodeMap[coords(x, y)], 1, mapNodeGraph);
+		}
+	}
+	int a = 1;
 }
 
 int Map::getWidth()
@@ -50,10 +86,10 @@ void Map::abstractMap() {
 	for (int x = 0; x < xSectorsNum; ++x) {	//build entrances to lower and right sectors
 		for (int y = 0; y < ySectorsNum; ++y) {
 			if (x + 1 < xSectorsNum) {	//if there is right sector
-				buildEntrances(sectors[x][y], sectors[x+1][y], RIGHT);
+				buildEntrances(sectors[x][y], sectors[x + 1][y], RIGHT);
 			}
 			if (y + 1 < ySectorsNum) {	//if there is lower sector
-				buildEntrances(sectors[x][y], sectors[x][y+1], DOWN);
+				buildEntrances(sectors[x][y], sectors[x][y + 1], DOWN);
 			}
 		}
 	}
@@ -140,7 +176,7 @@ void Map::buildEntrances(Sector& s1, Sector& s2, Direction s2Direction) {	//only
 			++y;
 		}
 	}
-		
+
 		break;
 	default:
 		return;
@@ -149,7 +185,7 @@ void Map::buildEntrances(Sector& s1, Sector& s2, Direction s2Direction) {	//only
 
 }
 
-bool Map::isInSectorCorner (const Sector& s, coords co) {
+bool Map::isInSectorCorner(const Sector& s, coords co) {
 	return co == s.lowerRightPoint || co == s.upperLeftPoint || (co.first == s.upperLeftPoint.first && co.second == s.lowerRightPoint.second) || (co.second == s.upperLeftPoint.second && co.first == s.lowerRightPoint.first);
 }
 
@@ -324,7 +360,7 @@ std::list<MapVertex> Map::findPathInsideSector(MapNodeGraph& graph, Sector& s, M
 		boost::tie(neighbourIt, neighbourEnd) = boost::adjacent_vertices(currentVertex, graph);
 		for (; neighbourIt != neighbourEnd; ++neighbourIt) {
 			MapVertex neighbourVertex = *neighbourIt;
-			if ( closedSet.find(neighbourVertex) == closedSet.end() && s.isInside(graph[neighbourVertex].getXY()) ) {	//only add to open list if vertex is inside sector
+			if (closedSet.find(neighbourVertex) == closedSet.end() && s.isInside(graph[neighbourVertex].getXY())) {	//only add to open list if vertex is inside sector
 				MapEdge edge = boost::edge(currentVertex, neighbourVertex, graph).first;
 				double tempCost = baseCostMap[currentVertex] + graph[edge];
 
@@ -364,10 +400,35 @@ double Map::pathCost(MapNodeGraph& graph, std::list<MapVertex> path) {
 		std::list<MapVertex>::iterator it2 = it1;
 		++it2;
 		if (it2 != path.end()){
-			currPathCost += graph[boost::edge(*it1, *it2, graph).first];	//assume that path is still passable
+			currPathCost += graph[boost::edge(*it1, *it2, graph).first];	//assume that path is stilladd passable
 		}
 		++it1;
 	}
 
 	return currPathCost;
+}
+
+void Map::pathToCoords(std::list<MapVertex>& path, MapNodeGraph& graph ) {
+	std::ofstream output;
+	output.open("output.txt");
+
+	for (std::list<MapVertex>::iterator it1 = path.begin(); it1 != path.end(); ++it1) {
+
+		coords nodeCoords = graph[*it1].getXY();
+		output << nodeCoords.first << " " << nodeCoords.second << "\n";
+	}
+
+	output << "\n" << graph[XYToGraphNodeMap[coords(0, 0)]].getXY().first << " " << graph[XYToGraphNodeMap[coords(0, 0)]].getXY().second << "\n";
+	output << graph[XYToGraphNodeMap[coords(10, 10)]].getXY().first << " " << graph[XYToGraphNodeMap[coords(10, 10)]].getXY().second << "\n";
+
+	output.close();
+}
+
+void Map::refreshMapping(std::map<coords, MapVertex>& XYtovertexMap, MapNodeGraph& graph) {
+	MapNodeGraph::vertex_iterator vi, vi_end;
+	for (tie(vi, vi_end) = boost::vertices(graph); vi != vi_end; ++vi) {
+		MapVertex vertex = *vi;
+		coords vcoords = graph[vertex].getXY();
+		XYtovertexMap[vcoords] = vertex;
+	}
 }

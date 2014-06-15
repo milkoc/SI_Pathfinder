@@ -8,7 +8,8 @@
 #include <map>
 #include <set>
 #include <vector>
-
+#include <iostream>
+#include <fstream>
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, MapNode, double> MapNodeGraph;
 typedef boost::graph_traits<MapNodeGraph>::vertex_descriptor MapVertex;
@@ -26,9 +27,13 @@ public:
 	void display();
 	bool moveCursor(int x, int y);
 
-	enum Direction{UP,DOWN,LEFT,RIGHT};
+	enum Direction{ UP, DOWN, LEFT, RIGHT };
+
 private:
 	int width, height;
+
+	MapNode *nodeTab[100][100];
+
 	MapNodeGraph mapNodeGraph;
 	MapNodeGraph abstractL2MapNodeGraph;
 	std::map<coords, MapVertex> XYToGraphNodeMap;
@@ -69,4 +74,8 @@ private:
 	static double manhattanDistanceHeuristic(MapNodeGraph& graph, MapVertex& vertexA, MapVertex& vertexB);
 	double pathCost(MapNodeGraph& graph, std::list<MapVertex> path);
 	std::list<MapVertex> constructPath(std::map<MapVertex, MapVertex> parentMap, MapVertex& currentVertex);
+	void pathToCoords(std::list<MapVertex>& path, MapNodeGraph& graph);
+	void refreshMapping(std::map<coords, MapVertex>& XYtovertexMap, MapNodeGraph& graph);
+
+	friend class App;
 };

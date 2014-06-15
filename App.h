@@ -5,8 +5,22 @@
 #include "map.h"
 #include "SeekerBot.h"
 
+struct tableCell
+{
+	int x, y;
+	Uint32 color;
+};
+
+enum Tryb
+{
+	zmien_cel,
+	dodaj,
+	usun,
+};
+
 class App
 {
+
 public:
 	//Screen dimension constants
 	static const int SCREEN_WIDTH = 800;
@@ -28,8 +42,8 @@ public:
 	void start();
 private:
 	Win mainWin;
-	SDL_Surface* bgIMG = NULL;
-	SDL_Surface* tileIMG = NULL;
+	SDL_Surface* bgIMG;
+	SDL_Surface* tileIMG;
 
 	Map map;
 
@@ -44,4 +58,13 @@ private:
 
 	void handleEvents();
 	void updateDisplay();
+
+	Tryb tryb;
+	SeekerBot seekerBot;
+	static const int mapLength = 100;
+	int cellSize;
+	tableCell tableMap[mapLength][mapLength];			// tablica stworzona z grafu
+	void createTableMap();
+	void drawMap();
+	void mouseClick(int x, int y);
 };
