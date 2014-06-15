@@ -277,7 +277,7 @@ void App::mouseClick(int x, int y)
 
 		//seekerBot.Path = seekerBot.pathfindingComponent.updatePath(map.mapNodeGraph, seekerBot.Path, Pathfinder::manhattanDistanceHeuristic);
 		seekerBot.Path = map.findPath(map.mapNodeGraph, map.XYToGraphNodeMap[coords(0, 0)], map.XYToGraphNodeMap[coords(10, 10)], Map::manhattanDistanceHeuristic);
-		map.pathToCoords(seekerBot.Path, map.mapNodeGraph);
+		//map.pathToCoords(seekerBot.Path, map.mapNodeGraph);
 	}
 }
 

@@ -417,9 +417,6 @@ void Map::pathToCoords(std::list<MapVertex>& path, MapNodeGraph& graph ) {
 		output << nodeCoords.first << " " << nodeCoords.second << "\n";
 	}
 
-	output << "\n" << graph[XYToGraphNodeMap[coords(0, 0)]].getXY().first << " " << graph[XYToGraphNodeMap[coords(0, 0)]].getXY().second << "\n";
-	output << graph[XYToGraphNodeMap[coords(10, 10)]].getXY().first << " " << graph[XYToGraphNodeMap[coords(10, 10)]].getXY().second << "\n";
-
 	output.close();
 }
 
