@@ -47,7 +47,6 @@ void Map::makeEmptyMap()
 			add_edge(XYToGraphNodeMap[coords(x, y + 1)], XYToGraphNodeMap[coords(x, y)], 1, mapNodeGraph);
 		}
 	}
-	int a = 1;
 }
 
 int Map::getWidth()
@@ -277,7 +276,7 @@ std::list<MapVertex> Map::findPathHierarchical(MapVertex v1, MapVertex v2) {	//f
 		}
 	}
 
-	return findPath(abstractGraphCp, newVertex, newVertex2, Map::manhattanDistanceHeuristic);
+	return smoothPath(findPath(abstractGraphCp, newVertex, newVertex2, Map::manhattanDistanceHeuristic), abstractGraphCp, mapNodeGraph);
 }
 
 std::list<MapVertex> Map::findPath(MapNodeGraph& graph, MapVertex& startVertex, MapVertex& goalVertex, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
@@ -431,4 +430,89 @@ void Map::refreshMapping(std::map<coords, MapVertex>& XYtovertexMap, MapNodeGrap
 		coords vcoords = graph[vertex].getXY();
 		XYtovertexMap[vcoords] = vertex;
 	}
+}
+
+std::list<MapVertex> Map::smoothPath(std::list<MapVertex> path, MapNodeGraph& abstractGraph, MapNodeGraph& fullGraph) {
+	std::list<MapVertex>::iterator it1 = path.begin();
+
+	std::list<MapVertex> newPath;
+	while (it1 != path.end()) {
+		std::list<MapVertex>::iterator it2 = it1, it3 = it1; 
+		++it2;
+		if (it2 != path.end()) {	//try to skip up to 2 nodes
+			it3 = it2;
+			++it3;
+			if (it3 != path.end()) {
+				it2 = it3;
+				++it3;
+				if (it3 != path.end()) {
+					it2 = it3;
+				}
+			}
+
+			coords co1 = abstractL2MapNodeGraph[*it1].getXY();
+			MapVertex fullGV1 = XYToGraphNodeMap.find(co1)->second;	//vertex 1 from the full graph
+
+			coords co2 = abstractL2MapNodeGraph[*it2].getXY();
+			MapVertex fullGV2 = XYToGraphNodeMap.find(co2)->second;	//vertex 2 from the full graph
+
+			std::list<MapVertex> subpath = findPath(mapNodeGraph, fullGV1, fullGV2, Map::manhattanDistanceHeuristic);
+			newPath.splice(newPath.end(), subpath);
+		}
+
+		it1 = it2;
+	}
+}
+
+std::list<MapVertex> Map::updatePath(MapNodeGraph& graph, std::list<MapVertex> path, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
+	std::list<MapVertex> newPath;
+	std::list<MapVertex>::iterator it1;
+	it1 = path.begin();
+
+	while (it1 != path.end()) {
+		std::list<MapVertex>::iterator it2 = it1, it3 = it1;
+		++it3;
+
+		while (it3 != path.end() && !boost::edge(*it2, *it3, graph).second) { //seek earliest vertex still connected to its successor
+			++it2;
+			++it3;
+		}
+		if (it1 != it2 && it2 != path.end()) {	//reconstruct subpath if vertices vere skipped
+			std::list<MapVertex> subpath = findPath(graph, *it1, *it2, hueristicEstimate);
+			newPath.splice(newPath.end(), subpath);
+			it1 = it2;
+		}
+		else {
+			newPath.push_back(*it1);
+			++it1;
+		}
+	}
+	return newPath;
+}
+
+std::list<MapVertex> Map::updatePathGoal(MapNodeGraph& graph, std::list<MapVertex> path, MapVertex& newGoal, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&)) {
+	double currPathCost = 0;
+	std::map<double, std::list<MapVertex>::iterator> estimatedCostMap;	//sort (path cost -> last vertex) pairs
+	std::list<MapVertex>::iterator it1 = path.begin();
+
+	while (it1 != path.end()) {		//estimate lenghts of possible new paths
+		double estimatedCost = currPathCost + hueristicEstimate(graph, *it1, newGoal);
+		estimatedCostMap[estimatedCost] = it1;
+
+		std::list<MapVertex>::iterator it2 = it1;
+		++it2;
+		if (it2 != path.end()){
+			currPathCost += graph[boost::edge(*it1, *it2, graph).first];	//assume that path is still passable
+		}
+		++it1;
+	}
+
+	std::list<MapVertex>::iterator lastKeptNodeit = estimatedCostMap.begin()->second;	//shortest estimated new path = path to this node + subpath to the new goal
+	std::list<MapVertex> newPath;
+	newPath.splice(newPath.begin(), path, path.begin(), lastKeptNodeit);	//move kept part of the old path into the new path
+	std::list<MapVertex> newGoalSubpath = findPath(graph, *lastKeptNodeit, newGoal, hueristicEstimate);
+	newGoalSubpath.pop_front();	//Delete the first element, it's lastKeptNode
+	newPath.splice(newPath.end(), newGoalSubpath);	//add new goal subpath to the new path
+
+	return newPath;
 }

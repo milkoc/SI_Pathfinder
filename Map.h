@@ -67,6 +67,8 @@ private:
 	void addAbstractGraphNeighborEdge(MapVertex v1, MapVertex v2);
 	void connectSectorVertices(Sector& s);
 	std::list<MapVertex> findPathHierarchical(MapVertex v1, MapVertex v2);
+	std::list<MapVertex> updatePath(MapNodeGraph& graph, std::list<MapVertex> path, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&));
+	std::list<MapVertex> updatePathGoal(MapNodeGraph& graph, std::list<MapVertex> path, MapVertex& newGoal, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&));
 
 
 	std::list<MapVertex> findPath(MapNodeGraph& graph, MapVertex& startVertex, MapVertex& goalVertex, double(*hueristicEstimate)(MapNodeGraph&, MapVertex&, MapVertex&));
@@ -76,6 +78,7 @@ private:
 	std::list<MapVertex> constructPath(std::map<MapVertex, MapVertex> parentMap, MapVertex& currentVertex);
 	void pathToCoords(std::list<MapVertex>& path, MapNodeGraph& graph);
 	void refreshMapping(std::map<coords, MapVertex>& XYtovertexMap, MapNodeGraph& graph);
+	std::list<MapVertex> smoothPath(std::list<MapVertex> path, MapNodeGraph& abstractGraph, MapNodeGraph& fullGraph);
 
 	friend class App;
 };
